@@ -1,7 +1,11 @@
-var React = require("react-native");
-var moment = require("moment");
+import React from "react-native";
+import moment from "moment";
+import Firebase from "firebase";
+import Button from "react-native-button";
 
-var {
+import Preview from "./Preview";
+
+const {
     AppRegistry,
     StyleSheet,
     Text,
@@ -10,14 +14,13 @@ var {
     TextInput
 } = React;
 
-var Firebase = require("firebase");
-
 const racetimeclient = React.createClass({
     componentWillMount() {
         this.firebaseRef = new Firebase("https://brilliant-torch-3113.firebaseio.com/entries/");
     },
     addEntry() {
         const time = moment(this.state.time, "mm:ss:SS");
+
         if (!time.isValid()) {
             console.log("invalid time");
             return;
@@ -28,6 +31,10 @@ const racetimeclient = React.createClass({
     },
     onChange(field, value) {
         this.setState({ [field]: value });
+    },
+    isValid() {
+        const time = moment(this.state.time, "mm:ss:SS");
+        return (time.isValid() && this.state.name.trim().length > 0);
     },
     getInitialState() {
         return {
@@ -41,11 +48,12 @@ const racetimeclient = React.createClass({
                 <Text style={styles.header}>
                     RaceTime!
                 </Text>
+                <Preview time={this.state.time} name={this.state.name} />
                 <TextInput style={styles.input} onChangeText={this.onChange.bind(null, "time")} value={this.state.time} />
                 <TextInput style={styles.input} onChangeText={this.onChange.bind(null, "name")} value={this.state.name} />
-                <TouchableHighlight style={styles.button} onPress={this.addEntry}>
-                    <Text style={styles.buttonText}>Add</Text>
-                </TouchableHighlight>
+                <Button style={styles.button} disabled={!this.isValid()} onPress={this.addEntry}>
+                    Add Entry
+                </Button>
             </View>
         );
     }
@@ -66,16 +74,7 @@ const styles = StyleSheet.create({
         borderRadius: 4,
     },
     button: {
-        height: 36,
-        flexDirection: "column",
-        justifyContent: "center",
-        backgroundColor: "#48afdb",
-        borderRadius: 4,
-        margin: 5
-    },
-    buttonText: {
-        textAlign: "center",
-        color: "#FFFFFF"
+        marginTop: 5
     }
 });
 
